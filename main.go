@@ -12,21 +12,33 @@ const (
 )
 
 func main() {
-	spaces := ReadSpaceMap(os.Stdin, totalLevel, unitsPerLevel)
+	spaces, number := ReadSpaceMap(os.Stdin, totalLevel, unitsPerLevel)
 	// debugPrintSpaces(spaces)
 
-	result := Allocator(totalLevel, unitsPerLevel, spaces)
+	result := Allocator(totalLevel, unitsPerLevel, spaces, number)
 
 	fmt.Println(result)
 }
 
-func Allocator(totalLevel int, unitsPerLevel int, spaces [][]bool) []string {
+func Allocator(totalLevel int, unitsPerLevel int, spaces [][]bool, number int) []string {
 	var res []string
+
+	for i := 0; i < len(spaces); i++ {
+		for j := 0; j < len(spaces[i]); j++ {
+			if !spaces[i][j] {
+				number--
+				res = append(res, fmt.Sprintf("%02d-%02d", i, j))
+				if number <= 0 {
+					return res
+				}
+			}
+		}
+	}
 
 	return res
 }
 
-func ReadSpaceMap(inSource io.Reader, totalLevel int, unitsPerLevel int) [][]bool {
+func ReadSpaceMap(inSource io.Reader, totalLevel int, unitsPerLevel int) ([][]bool, int) {
 	spaces := make([][]bool, 0)
 
 	for i := 0; i < totalLevel; i++ {
@@ -38,7 +50,10 @@ func ReadSpaceMap(inSource io.Reader, totalLevel int, unitsPerLevel int) [][]boo
 		}
 	}
 
-	return spaces
+	var number int
+	fmt.Fscan(inSource, &number)
+
+	return spaces, number
 }
 
 func debugPrintSpaces(spaces [][]bool) {
